@@ -2,13 +2,25 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
-from langchain.llms import HuggingFaceHub
+
+load_dotenv()  # load your env file
+
+st.set_page_config(page_title="Report+ PDF AI Chatbot",
+                   page_icon=":robot_face:")
+
+st.write(css, unsafe_allow_html=True)
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = None
+
+if "conversation" not in st.session_state:
+    st.session_state.conversation = None
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -65,18 +77,11 @@ def handle_userinput(user_question):
 
 
 def main():
-    load_dotenv()
-    st.set_page_config(page_title="Chat with multiple PDFs",
-                       page_icon=":books:")
-    st.write(css, unsafe_allow_html=True)
-
     # Start the chat container
     st.write('<div class="chat-container">', unsafe_allow_html=True)
 
-    # 1. "Czatuj z plikami PDF" at the top
-    st.header("Chat with multiple PDFs :books:")
+    st.header("Czatuj z plikami PDF :books:")
 
-    # 2. The chat window (messages) in the middle
     st.write('<div class="chat-window">', unsafe_allow_html=True)
     if st.session_state.chat_history:
         for i, message in enumerate(st.session_state.chat_history):
@@ -88,19 +93,18 @@ def main():
                     "{{MSG}}", message.content), unsafe_allow_html=True)
     st.write('</div>', unsafe_allow_html=True)  # Close chat-window
 
-    # 3. "Zadaj pytanie" and the input at the bottom
-    user_question = st.text_input("Ask a question about your documents:")
+    user_question = st.text_input("Zadaj pytanie dotyczące Twoich dokumentów:")
     if user_question:
         handle_userinput(user_question)
 
     st.write('</div>', unsafe_allow_html=True)  # Close chat-container
 
     with st.sidebar:
-        st.subheader("Your documents")
+        st.subheader("Twoje dokumenty")
         pdf_docs = st.file_uploader(
-            "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
-        if st.button("Process"):
-            with st.spinner("Processing"):
+            "Prześlij tutaj swoje pliki PDF i kliknij „Przetwarzaj”", accept_multiple_files=True)
+        if st.button("Przetwarzaj"):
+            with st.spinner("Przetwarzanie dokumentów..."):
                 # get pdf text
                 raw_text = get_pdf_text(pdf_docs)
 
@@ -113,7 +117,8 @@ def main():
                 # create conversation chain
                 st.session_state.conversation = get_conversation_chain(
                     vectorstore)
-
+                st.success("Twoje pliki PDF zostały pomyślnie przetworzone!")
+                
 
 if __name__ == '__main__':
     main()
