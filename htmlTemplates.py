@@ -1,5 +1,8 @@
 css = '''
 <style>
+.main {
+height: 100vh;
+}
 .chat-message {
     padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; display: flex
 }
@@ -8,6 +11,9 @@ css = '''
 }
 .chat-message.bot {
     background-color: #475063
+}
+.block-container  {
+padding: 0.2rem;
 }
 .chat-message .avatar {
   width: 20%;
@@ -26,18 +32,26 @@ css = '''
 footer, #MainMenu {
 display: none;
 }
-.chat-container {
+
+[data-testid="InputInstructions"] {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    min-height: 60vh;
     justify-content: space-between;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .chat-window {
+    margin-bottom: 120px;
     overflow-y: auto;
-    flex-grow: 1;
 }
-
+.stTextInput {
+    position: fixed;
+    bottom: 0;
+    z-index: 1000;
+    background: black;
+}
 .stTextInput, .stMarkdown {
     margin-bottom: 1rem;
 }
